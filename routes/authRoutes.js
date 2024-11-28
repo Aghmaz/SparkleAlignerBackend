@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { registerSchema, loginSchema } = require("../utils/validate");
+const { registerSchema, loginSchema } = require("../utilis/validate");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config");
 const errorHandler = require("../middleware/error");
 const user = require("../models/user");
 
+// client + doctor + agent (Signup route)
 router.post(
   "/signup",
   errorHandler(async (req, res) => {
@@ -41,6 +42,7 @@ router.post(
   })
 );
 
+// login route (agent,client,doctor)
 router.post(
   "/login",
   errorHandler(async (req, res) => {
@@ -86,4 +88,34 @@ router.post(
     }
   })
 );
+
+// admin login route
+router.post("/admin", async (req, res) => {
+  try {
+    const { email, password } = req.body; //destructing the req here
+
+    const { error } = loginSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details });
+    if (
+      email !== "sparkleAligner@gmail.com" &&
+      password !== "sparkleAlignerAdmin"
+    ) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+    // if creds match
+    if (
+      email === "sparkleAligner@gmail.com" &&
+      password === "sparkleAlignerAdmin"
+    ) {
+      // Create and sign a JWT token
+      const token = jwt.sign({ email }, "sparklealignertoken");
+
+      // Send the token and userId in the response
+      res.status(200).json({ message: "Login successfully", token });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 module.exports = router;
