@@ -14,7 +14,8 @@ router.post(
     const { error } = registerSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details });
 
-    const { name, email, password } = req.body;
+    const { name, email, password, role, treatment_details, status, profile } =
+      req.body;
 
     const existingUser = await user.findOne({ email });
     if (existingUser) {
@@ -28,15 +29,24 @@ router.post(
       name,
       email,
       password: hashedPassword,
+      role,
+      treatment_details,
+      status,
+      profile,
     });
 
     const savedUser = await newUser.save();
 
     res.status(200).send({
       message: "Registration successful!",
-      User: {
+      user: {
         name: savedUser.name,
         email: savedUser.email,
+        password:savedUser.password,
+        role: savedUser.role,
+        status: savedUser.status,
+        profile: savedUser.profile,
+        treatment_details: savedUser.treatment_details,
       },
     });
   })
@@ -92,7 +102,7 @@ router.post(
 // admin login route
 router.post("/admin", async (req, res) => {
   try {
-    const { email, password } = req.body; //destructing the req here
+    const { email, password} = req.body; //destructing the req here
 
     const { error } = loginSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details });
