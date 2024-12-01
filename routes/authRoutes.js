@@ -6,6 +6,14 @@ const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config");
 const errorHandler = require("../middleware/error");
 const user = require("../models/user");
+const userController = require("../controller/userController");
+
+// CRUD Routes
+router.post("/user", userController.createUser);
+router.get("/users", userController.getAllUsers);
+router.get("/user/:id", userController.getUserById);
+router.put("/user/:id", userController.updateUser);
+router.delete("/user/:id", userController.deleteUser);
 
 // client + doctor + agent (Signup route)
 router.post(
@@ -42,7 +50,7 @@ router.post(
       user: {
         name: savedUser.name,
         email: savedUser.email,
-        password:savedUser.password,
+        password: savedUser.password,
         role: savedUser.role,
         status: savedUser.status,
         profile: savedUser.profile,
@@ -102,7 +110,7 @@ router.post(
 // admin login route
 router.post("/admin", async (req, res) => {
   try {
-    const { email, password} = req.body; //destructing the req here
+    const { email, password } = req.body; //destructing the req here
 
     const { error } = loginSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details });
@@ -128,4 +136,5 @@ router.post("/admin", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 module.exports = router;
