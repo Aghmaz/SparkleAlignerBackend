@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { registerSchema, loginSchema } = require("../utils/validate");
+const { registerSchema, loginSchema } = require("../utilis/validate");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config");
