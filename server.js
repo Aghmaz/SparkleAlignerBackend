@@ -8,6 +8,8 @@ const alignerTrackerRoutes = require("./routes/alignerTrackerRoutes");
 // const { mongoURI } = require("./config");
 const Chat = require("./models/chat");
 const sendNotification = require("./routes/sendNotfication");
+const manufacturerRoutes = require("./routes/manufacturerRoutes");
+
 const http = require("http");
 const { Server } = require("socket.io");
 const bodyParser = require("body-parser");
@@ -62,6 +64,7 @@ io.on("connection", (socket) => {
 app.use("/api/auth", authRoute);
 app.use("/api/auth/treatment-previews", treatmentPreviewRoutes);
 app.use("/api/aligner-trackers", alignerTrackerRoutes);
+app.use("/api/manufacturers", manufacturerRoutes);
 let PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
