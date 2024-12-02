@@ -1,4 +1,8 @@
 const User = require("../models/user");
+const bcrypt = require("bcrypt");
+const { registerSchema, loginSchema } = require("../utilis/validate");
+const jwt = require("jsonwebtoken");
+const errorHandler = require("../middleware/error");
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -56,5 +60,121 @@ exports.deleteUser = async (req, res) => {
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+// client, doctor, agent (Signup route )
+exports.signup = errorHandler(async (req, res) => {
+  const { error } = registerSchema.validate(req.body);
+  if (error) return res.status(400).json({ error: error.details });
+
+  const { name, email, password, role, treatment_details, status, profile } =
+    req.body;
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(409).send({ message: "Email is already in use" });
+  }
+
+  const salt = await bcrypt.genSalt(1);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  const newUser = new User({
+    name,
+    email,
+    password: hashedPassword,
+    role,
+    treatment_details,
+    status,
+    profile,
+  });
+
+  const savedUser = await newUser.save();
+
+  res.status(200).send({
+    message: "Registration successful!",
+    user: {
+      name: savedUser.name,
+      email: savedUser.email,
+      role: savedUser.role,
+      password: savedUser.password,
+      status: savedUser.status,
+      profile: savedUser.profile,
+      treatment_details: savedUser.treatment_details,
+    },
+  });
+});
+
+// login route (client, doctor, agent)
+exports.login = errorHandler(async (req, res) => {
+  try {
+    const { error } = loginSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details });
+    // Find the user with the specified email address
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+
+    // Compare the password with the hashed password
+    const passwordMatch = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+    if (!passwordMatch) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    // Create and sign a JWT token
+    const token = jwt.sign(
+      {
+        email: user.email,
+        userId: user._id,
+        password: user.password,
+      },
+      "abcdef"
+    );
+
+    // Send the token and userId in the response
+    res.status(200).json({
+      token: token,
+      password: user.password,
+      email: user.email,
+      userId: user._id,
+      name: user.name,
+      role:user.role,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// admin login route
+exports.adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body; //destructing the req here
+
+    const { error } = loginSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details });
+    if (
+      email !== "sparkleAligner@gmail.com" &&
+      password !== "sparkleAlignerAdmin"
+    ) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+    // if creds match
+    if (
+      email === "sparkleAligner@gmail.com" &&
+      password === "sparkleAlignerAdmin"
+    ) {
+      // Create and sign a JWT token
+      const token = jwt.sign({ email }, "sparklealignertoken");
+
+      // Send the token and userId in the response
+      res.status(200).json({ message: "Login successfully", token });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
