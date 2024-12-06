@@ -36,6 +36,12 @@ const UserSchema = new mongoose.Schema({
   address: { type: String },
   nationalId: { type: String },
   createdAt: { type: Date, default: Date.now },
+  media: [
+    {
+      fileUrl: { type: String, required: true },
+      uploadedAt: { type: Date, default: Date.now },
+    },
+  ],
 });
 
 module.exports = mongoose.model("User", UserSchema);

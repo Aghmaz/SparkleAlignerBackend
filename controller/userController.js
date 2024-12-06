@@ -142,7 +142,7 @@ exports.login = errorHandler(async (req, res) => {
       email: user.email,
       userId: user._id,
       name: user.name,
-      role:user.role,
+      role: user.role,
     });
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
@@ -153,7 +153,7 @@ exports.login = errorHandler(async (req, res) => {
 exports.adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body; //destructing the req here
-
+    console.log(email, password, " email, password");
     const { error } = loginSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details });
     if (
@@ -171,10 +171,67 @@ exports.adminLogin = async (req, res) => {
       const token = jwt.sign({ email }, "sparklealignertoken");
 
       // Send the token and userId in the response
-      res.status(200).json({ message: "Login successfully", token });
+      res
+        .status(200)
+        .json({
+          message: "Login successfully",
+          token,
+          // email,
+          // id: 1,
+          // role: "superadmin",
+        });
     }
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Fetch media for a specific patient
+exports.getPatientMedia = async (req, res) => {
+  try {
+    // Fetch the user (patient) by ID
+    const user = await User.findById(req.params.id);
+
+    // Check if user exists and is a patient
+    if (!user || user.role !== "Patient") {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    // Return media array (previous images)
+    res.status(200).json(user.media);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update the media for a patient (upload new media)
+exports.uploadPatientMedia = async (req, res) => {
+  try {
+    // Assuming the media is sent as part of form-data with 'fileUrl'
+    const { fileUrl } = req.body;
+
+    // Validate that the media URL is provided
+    if (!fileUrl) {
+      return res.status(400).json({ message: "File URL is required" });
+    }
+
+    // Fetch the user (patient) by ID
+    const user = await User.findById(req.params.id);
+
+    // Check if user exists and is a patient
+    if (!user || user.role !== "Patient") {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    // Add the new media (image) to the media array
+    user.media.push({ fileUrl });
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "Media uploaded successfully", media: user.media });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
