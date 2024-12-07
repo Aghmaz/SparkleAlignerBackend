@@ -140,7 +140,7 @@ exports.login = errorHandler(async (req, res) => {
       token: token,
       password: user.password,
       email: user.email,
-      userId: user._id,
+      id: user._id,
       name: user.name,
       role: user.role,
     });
@@ -171,15 +171,13 @@ exports.adminLogin = async (req, res) => {
       const token = jwt.sign({ email }, "sparklealignertoken");
 
       // Send the token and userId in the response
-      res
-        .status(200)
-        .json({
-          message: "Login successfully",
-          token,
-          // email,
-          // id: 1,
-          // role: "superadmin",
-        });
+      res.status(200).json({
+        message: "Login successfully",
+        token,
+        // email,
+        // id: 1,
+        // role: "superadmin",
+      });
     }
   } catch (err) {
     console.error(err);

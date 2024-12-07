@@ -3,6 +3,7 @@ const TreatmentPreview = require("../models/treatmentPreview");
 // Create a new treatment preview
 exports.createTreatmentPreview = async (req, res) => {
   try {
+    console.log(req.body, "====================");
     const treatmentPreview = new TreatmentPreview(req.body);
     const savedPreview = await treatmentPreview.save();
     res.status(201).json(savedPreview);
