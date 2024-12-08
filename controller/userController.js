@@ -174,9 +174,9 @@ exports.adminLogin = async (req, res) => {
       res.status(200).json({
         message: "Login successfully",
         token,
-        // email,
-        // id: 1,
-        // role: "superadmin",
+        email,
+        id: 1,
+        role: "SuperAdmin",
       });
     }
   } catch (err) {
