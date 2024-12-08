@@ -3,7 +3,9 @@ const TreatmentPreview = require("../models/treatmentPreview");
 // Create a new treatment preview
 exports.createTreatmentPreview = async (req, res) => {
   try {
+    console.log("=======");
     console.log(req.body, "====================");
+    console.log("=======");
     const treatmentPreview = new TreatmentPreview(req.body);
     const savedPreview = await treatmentPreview.save();
     res.status(201).json(savedPreview);
@@ -19,7 +21,7 @@ exports.getAllTreatmentPreviews = async (req, res) => {
       .populate("patientId")
       .populate("doctorId")
       .populate("agentId")
-      .populate("manufacturerId");
+      // .populate("manufacturerId");
     res.status(200).json(previews);
   } catch (error) {
     res.status(500).json({ error: error.message });
