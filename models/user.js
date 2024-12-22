@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["Patient", "Agent", "Doctor","SuperAdmin"],
+    enum: ["Patient", "Agent", "Doctor", "SuperAdmin"],
     required: true,
   },
   treatment_details: {
@@ -36,6 +36,14 @@ const UserSchema = new mongoose.Schema({
   address: { type: String },
   nationalId: { type: String },
   createdAt: { type: Date, default: Date.now },
+  isOnline: {
+    type: Boolean,
+    default: false,
+  },
+  lastSeen: {
+    type: Date,
+    default: Date.now,
+  },
   media: [
     {
       fileUrl: { type: String, required: true },

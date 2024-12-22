@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const cors = require("cors");
 const authRoute = require("./routes/authRoutes");
+const messageRoute = require("./routes/messageRoute");
+const conversationRoute = require("./routes/conversationRoute");
 const treatmentPreviewRoutes = require("./routes/treatmentPreviewRoutes");
 const alignerTrackerRoutes = require("./routes/alignerTrackerRoutes");
 // const { mongoURI } = require("./config");
@@ -13,6 +15,7 @@ const manufacturerRoutes = require("./routes/manufacturerRoutes");
 const http = require("http");
 const { Server } = require("socket.io");
 const bodyParser = require("body-parser");
+const { initSocket } = require("./socket");
 
 const app = express();
 app.use(express.json());
@@ -31,40 +34,19 @@ mongoose
   .then(() => console.log("connected to mongodb"))
   .catch((error) => console.log("couldn't connected to mongodb"));
 
-io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+// Socket.io setup
+initSocket(server); // Initialize socket.io logic
 
-  // Handle receiving a message
-  socket.on("sendMessage", async (data) => {
-    try {
-      const newMessage = new Chat({
-        senderId: data.senderId,
-        receiverId: data.receiverId,
-        message: data.message,
-      });
-
-      // Save to MongoDB
-      await newMessage.save();
-
-      // Broadcast the message to the receiver
-      io.to(data.receiverId).emit("receiveMessage", newMessage);
-
-      // Send a push notification to the receiver
-      await sendNotification(data.receiverId, "You have a new message!");
-    } catch (error) {
-      console.error("Error handling message:", error);
-    }
-  });
-
-  socket.on("disconnect", () => {
-    console.log("A user disconnected:", socket.id);
-  });
+// Routes
+app.get("/", (req, res) => {
+  res.send("Hello World");
 });
-
 app.use("/api/auth", authRoute);
 app.use("/api/auth/treatment-previews", treatmentPreviewRoutes);
 app.use("/api/aligner-trackers", alignerTrackerRoutes);
 app.use("/api/manufacturers", manufacturerRoutes);
+app.use("/message", messageRoute);
+app.use("/conversation", conversationRoute);
 let PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
