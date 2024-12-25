@@ -20,8 +20,8 @@ exports.getAllTreatmentPreviews = async (req, res) => {
     const previews = await TreatmentPreview.find()
       .populate("patientId")
       .populate("doctorId")
-      .populate("agentId");
-    // .populate("manufacturerId");
+      .populate("agentId")
+      .populate("manufacturerId");
     res.status(200).json(previews);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -32,12 +32,12 @@ exports.getAllTreatmentPreviews = async (req, res) => {
 exports.getTreatmentPreviewById = async (req, res) => {
   try {
     const preview = await TreatmentPreview.find({
-      doctorId: req.params.id,
+      manufacturerId: req.params.id,
     })
       .populate("patientId")
-      .populate("doctorId")
-      .populate("agentId");
-    // .populate("manufacturerId");
+      // .populate("doctorId")
+      .populate("agentId")
+      .populate("manufacturerId");
     console.log(preview, "=================");
     if (!preview)
       return res.status(404).json({ message: "Treatment preview not found" });
@@ -58,6 +58,7 @@ exports.updateTreatmentPreview = async (req, res) => {
         runValidators: true,
       }
     );
+    console.log('updatedPreview==============',updatedPreview)
     if (!updatedPreview)
       return res.status(404).json({ message: "Treatment preview not found" });
     res.status(200).json(updatedPreview);

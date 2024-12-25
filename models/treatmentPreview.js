@@ -8,7 +8,8 @@ const treatmentPreviewSchema = new mongoose.Schema({
   },
   doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   agentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  // manufacturerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  Id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  manufacturerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   status: {
     type: String,
     enum: ["Pending", "Approved", "Rejected"],
