@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
-const manufacturerSchema = new mongoose.Schema({
+const finalStagePreviewForDoctorByAgentSchema = new mongoose.Schema({
   agentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  linkedPatients: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  linkedPatients: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   uploadedFiles: [
     {
       fileName: { type: String },
@@ -13,4 +14,7 @@ const manufacturerSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Manufacturer", manufacturerSchema);
+module.exports = mongoose.model(
+  "FinalStagePreviewForDoctorByAgent",
+  finalStagePreviewForDoctorByAgentSchema
+);

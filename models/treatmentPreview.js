@@ -6,10 +6,15 @@ const treatmentPreviewSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   agentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  Id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  manufacturerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  manufacturerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  manufacturerTreatmentPreviewId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Manufacturer",
+  },
   status: {
     type: String,
     enum: ["Pending", "Approved", "Rejected"],

@@ -10,8 +10,11 @@ const alignerTrackerRoutes = require("./routes/alignerTrackerRoutes");
 // const { mongoURI } = require("./config");
 const Chat = require("./models/chat");
 const sendNotification = require("./routes/sendNotfication");
-const manufacturerRoutes = require("./routes/manufacturerRoutes");
-
+const patientDataByTheAgentForManufacturerRoutes = require("./routes/manufacturerRoutes");
+const treatmentPreviewByAgentRoutes = require("./routes/treatmentPreviewByAgentRoutes");
+const patientApprovalRoutes = require("./routes/patientApprovalRoutes");
+const doctorApprovalRoutes = require("./routes/doctorApprovalRoutes");
+const finalStagePreviewRoutes = require("./routes/finalStagePreviewForDoctorByAgentRoutes");
 const http = require("http");
 const { Server } = require("socket.io");
 const bodyParser = require("body-parser");
@@ -44,9 +47,16 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoute);
 app.use("/api/auth/treatment-previews", treatmentPreviewRoutes);
 app.use("/api/aligner-trackers", alignerTrackerRoutes);
-app.use("/api/manufacturers", manufacturerRoutes);
+app.use(
+  "/api/patient-Data-By-The-Agent-For-Manufacturer",
+  patientDataByTheAgentForManufacturerRoutes
+);
 app.use("/message", messageRoute);
 app.use("/conversation", conversationRoute);
+app.use("/api/user/treatment-preview-by-agent", treatmentPreviewByAgentRoutes);
+app.use("/api/user/patient-approval", patientApprovalRoutes);
+app.use("/api/user/doctor-approval", doctorApprovalRoutes);
+app.use("/api/final-stage-preview", finalStagePreviewRoutes);
 let PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
