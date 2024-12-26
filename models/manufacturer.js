@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const manufacturerSchema = new mongoose.Schema({
   agentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  linkedPatients: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  linkedPatientId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   uploadedFiles: [
     {
       fileName: { type: String },
