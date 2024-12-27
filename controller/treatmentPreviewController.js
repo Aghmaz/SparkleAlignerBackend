@@ -19,7 +19,7 @@ exports.getAllTreatmentPreviews = async (req, res) => {
   try {
     const previews = await TreatmentPreview.find()
       .populate("patientId")
-      .populate("doctorId")
+      // .populate("doctorId")
       .populate("agentId")
       .populate("manufacturerId");
     res.status(200).json(previews);
@@ -32,11 +32,11 @@ exports.getAllTreatmentPreviews = async (req, res) => {
 exports.getTreatmentPreviewById = async (req, res) => {
   try {
     const preview = await TreatmentPreview.find({
-      manufacturerId: req.params.id,
+      agentId: req.params.id,
     })
       .populate("patientId")
       // .populate("doctorId")
-      .populate("agentId")
+      // .populate("agentId")
       .populate("manufacturerId");
     console.log(preview, "=================");
     if (!preview)

@@ -4,12 +4,12 @@ const TreatmentPreviewByAgent = require("../models/treatmentPreviewByAgent"); //
 // CREATE: Create a new TreatmentPreviewByAgent document
 const createTreatmentPreviewByAgent = async (req, res) => {
   try {
-    const { agentId, linkedPatients, uploadedFiles } = req.body;
+    const { agentId, linkedPatientId, uploadedFiles } = req.body;
 
     // Creating a new document
     const newTreatmentPreview = new TreatmentPreviewByAgent({
       agentId,
-      linkedPatients,
+      linkedPatientId,
       uploadedFiles,
     });
 

@@ -14,7 +14,9 @@ exports.createManufacturer = async (req, res) => {
 // Get all manufacturers
 exports.getAllManufacturers = async (req, res) => {
   try {
-    const manufacturers = await Manufacturer.find();
+    const manufacturers = await Manufacturer.find()
+    .populate("agentId")
+    .populate("linkedPatientId");
     res.status(200).json(manufacturers);
   } catch (error) {
     res.status(500).json({ error: error.message });
