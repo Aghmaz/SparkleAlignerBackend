@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const finalStagePreviewForDoctorByAgentSchema = new mongoose.Schema({
   agentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  linkedPatients: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  linkedPatientId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   uploadedFiles: [
     {
       fileName: { type: String },

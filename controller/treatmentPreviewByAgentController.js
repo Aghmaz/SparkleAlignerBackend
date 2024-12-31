@@ -32,7 +32,7 @@ const getAllTreatmentPreviewByAgent = async (req, res) => {
   try {
     const treatmentPreviews = await TreatmentPreviewByAgent.find()
       .populate("agentId", "name email") // Adjust according to the User schema
-      .populate("linkedPatients", "name email")
+      .populate("linkedPatientId", "name email")
       .populate("uploadedFiles.uploadedBy", "name email"); // Populating uploadedBy (if needed)
 
     res.status(200).json(treatmentPreviews);
@@ -50,7 +50,7 @@ const getTreatmentPreviewByAgentById = async (req, res) => {
   try {
     const treatmentPreview = await TreatmentPreviewByAgent.findById(id)
       .populate("agentId", "name email")
-      .populate("linkedPatients", "name email")
+      .populate("linkedPatientId", "name email")
       .populate("uploadedFiles.uploadedBy", "name email");
 
     if (!treatmentPreview) {

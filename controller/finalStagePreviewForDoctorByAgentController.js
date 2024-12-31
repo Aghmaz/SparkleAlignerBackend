@@ -4,18 +4,18 @@ const FinalStagePreviewForDoctorByAgent = require("../models/finalStagePreviewfo
 // Create a new final stage preview for doctor by agent
 const createFinalStagePreview = async (req, res) => {
   try {
-    const { agentId, doctorId, linkedPatients, uploadedFiles } = req.body;
+    const { agentId, doctorId, linkedPatientId, uploadedFiles } = req.body;
 
-    if (!agentId || !doctorId || !linkedPatients) {
+    if (!agentId || !doctorId || !linkedPatientId) {
       return res
         .status(400)
-        .json({ message: "Agent, Doctor and Linked Patients are required." });
+        .json({ message: "Agent, Doctor and Linked Patient IDs are required." });
     }
 
     const newPreview = new FinalStagePreviewForDoctorByAgent({
       agentId,
       doctorId,
-      linkedPatients,
+      linkedPatientId,
       uploadedFiles,
     });
 
@@ -35,8 +35,7 @@ const getAllFinalStagePreviews = async (req, res) => {
     const previews = await FinalStagePreviewForDoctorByAgent.find()
       .populate("agentId", "name email")
       .populate("doctorId", "name email")
-      .populate("linkedPatients", "name email");
-
+      .populate("linkedPatientId", "name email");
     res.status(200).json({ previews });
   } catch (error) {
     console.error(error);
@@ -47,13 +46,12 @@ const getAllFinalStagePreviews = async (req, res) => {
 // Get a specific final stage preview by ID
 const getFinalStagePreviewById = async (req, res) => {
   try {
-    const preview = await FinalStagePreviewForDoctorByAgent.findById({
+    const preview = await FinalStagePreviewForDoctorByAgent.find({
       doctorId: req.params.id,
     })
       .populate("agentId", "name email")
       .populate("doctorId", "name email")
-      .populate("linkedPatients", "name email");
-
+      .populate("linkedPatientId", "name email");
     if (!preview) {
       return res.status(404).json({ message: "Preview not found." });
     }
@@ -70,12 +68,12 @@ const getFinalStagePreviewById = async (req, res) => {
 // Update a final stage preview by ID
 const updateFinalStagePreview = async (req, res) => {
   try {
-    const { agentId, doctorId, linkedPatients, uploadedFiles } = req.body;
+    const { agentId, doctorId, linkedPatientId, uploadedFiles } = req.body;
 
     const updatedPreview =
       await FinalStagePreviewForDoctorByAgent.findByIdAndUpdate(
         req.params.id,
-        { agentId, doctorId, linkedPatients, uploadedFiles },
+        { agentId, doctorId, linkedPatientId, uploadedFiles },
         { new: true }
       );
 
