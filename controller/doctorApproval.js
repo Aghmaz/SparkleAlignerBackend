@@ -4,14 +4,13 @@ const DoctorApproval = require("../models/doctorApproval");
 // Create or Update a doctor approval
 const approveOrDenyDoctor = async (req, res) => {
   try {
-    const { doctorId, status, comment } = req.body;
+    const { doctorId, status, comment, patientId } = req.body;
 
-    if (!doctorId || !status || !comment) {
-      return res
-        .status(400)
-        .json({
-          message: "All fields (doctorId, status, comment) are required.",
-        });
+    if (!doctorId || !status || !comment || !patientId) {
+      return res.status(400).json({
+        message:
+          "All fields (doctorId, status, comment,patientId) are required.",
+      });
     }
 
     if (status !== "approve" && status !== "deny") {
@@ -27,24 +26,25 @@ const approveOrDenyDoctor = async (req, res) => {
       existingApproval.status = status;
       existingApproval.comment = comment;
       await existingApproval.save();
-      return res
-        .status(200)
-        .json({
-          message: "Doctor approval status updated.",
-          approval: existingApproval,
-        });
+      return res.status(200).json({
+        message: "Doctor approval status updated.",
+        approval: existingApproval,
+      });
     }
 
     // Create a new approval if it does not exist
-    const newApproval = new DoctorApproval({ doctorId, status, comment });
+    const newApproval = new DoctorApproval({
+      doctorId,
+      status,
+      comment,
+      patientId,
+    });
     await newApproval.save();
 
-    res
-      .status(201)
-      .json({
-        message: "Doctor approval status created.",
-        approval: newApproval,
-      });
+    res.status(201).json({
+      message: "Doctor approval status created.",
+      approval: newApproval,
+    });
   } catch (error) {
     console.error(error);
     res
@@ -56,10 +56,9 @@ const approveOrDenyDoctor = async (req, res) => {
 // Get all doctor approvals
 const getAllApprovals = async (req, res) => {
   try {
-    const approvals = await DoctorApproval.find().populate(
-      "doctorId",
-      "name specialty"
-    );
+    const approvals = await DoctorApproval.find()
+      .populate("doctorId", "name")
+      .populate("patientId", "name");
     res.status(200).json({ approvals });
   } catch (error) {
     console.error(error);

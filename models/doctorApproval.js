@@ -4,7 +4,12 @@ const mongoose = require("mongoose");
 const DoctorApprovalSchema = new mongoose.Schema({
   doctorId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // Assuming you have a 'Patient' collection
+    ref: "User", 
+    required: true,
+  },
+  patientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", 
     required: true,
   },
   status: {

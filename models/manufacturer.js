@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const manufacturerSchema = new mongoose.Schema({
   agentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   linkedPatientId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  specialComments: { type: String },
   uploadedFiles: [
     {
       fileName: { type: String },
