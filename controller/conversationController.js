@@ -1,4 +1,5 @@
 const Conversation = require("../models/conversation.js");
+const User = require("../models/user.js");
 
 const createConversation = async (req, res) => {
   try {
@@ -10,14 +11,34 @@ const createConversation = async (req, res) => {
       });
     }
 
+    // Get both users
+    const users = await User.find({ _id: { $in: memberIds } });
+    if (users.length !== 2) {
+      return res.status(400).json({
+        error: "Invalid users",
+      });
+    }
+
+    // Check chat permissions based on roles
+    const [user1, user2] = users;
+    const isValidChat = checkChatPermissions(user1.role, user2.role);
+
+    if (!isValidChat) {
+      return res.status(403).json({
+        error: "Users with these roles cannot chat with each other",
+      });
+    }
+
     const conv = await Conversation.findOne({
       members: { $all: memberIds },
     }).populate("members", "-password");
 
     if (conv) {
-      conv.members = conv.members.filter(
-        (memberId) => memberId !== req.user.id
+      // Filter out the current user from the members array
+      const otherMembers = conv.members.filter(
+        (member) => member._id.toString() !== req.user._id.toString()
       );
+      conv.members = otherMembers;
       return res.status(200).json(conv);
     }
 
@@ -31,15 +52,43 @@ const createConversation = async (req, res) => {
 
     await newConversation.populate("members", "-password");
 
-    newConversation.members = newConversation.members.filter(
-      (member) => member.id !== req.user.id
+    // Filter out the current user from the members array
+    const otherMembers = newConversation.members.filter(
+      (member) => member._id.toString() !== req.user._id.toString()
     );
+    newConversation.members = otherMembers;
 
     return res.status(200).json(newConversation);
   } catch (error) {
     console.log(error);
     return res.status(500).send("Internal Server Error");
   }
+};
+
+// Helper function to check chat permissions
+const checkChatPermissions = (role1, role2) => {
+  // SuperAdmin can chat with everyone
+  if (role1 === "SuperAdmin" || role2 === "SuperAdmin") return true;
+
+  // Agent can chat with everyone
+  if (role1 === "Agent" || role2 === "Agent") return true;
+
+  // Manufacturer can only chat with Agent/SuperAdmin
+  if (role1 === "Manufacturer" || role2 === "Manufacturer") {
+    return false; // Already handled by SuperAdmin/Agent checks above
+  }
+
+  // Doctor can only chat with Agent/SuperAdmin
+  if (role1 === "Doctor" || role2 === "Doctor") {
+    return false; // Already handled by SuperAdmin/Agent checks above
+  }
+
+  // Patient can only chat with Agent/SuperAdmin
+  if (role1 === "Patient" || role2 === "Patient") {
+    return false; // Already handled by SuperAdmin/Agent checks above
+  }
+
+  return false;
 };
 
 const getConversation = async (req, res) => {

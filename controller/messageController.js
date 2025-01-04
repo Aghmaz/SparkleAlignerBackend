@@ -17,53 +17,53 @@ dotenv.config({ path: "./.env" });
 // const model = configuration.getGenerativeModel({ model: modelId });
 
 const sendMessage = async (req, res) => {
-  var imageurl = "";
-
-  if (req.file) {
-    imageurl = await imageupload(req.file, false);
-  }
-
   try {
+    console.log("Request body:", req.body);
+    console.log("Auth user:", req.user);
+
     const { conversationId, sender, text } = req.body;
+
+    // Validate inputs
     if (!conversationId || !sender || !text) {
       return res.status(400).json({
-        error: "Please fill all the fields",
+        error:
+          "Please provide all required fields: conversationId, sender, and text",
       });
     }
 
-    const conversation = await Conversation.findById(conversationId).populate(
-      "members",
-      "-password"
-    );
+    // Verify conversation exists and user is a member
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
 
-    //check if conversation contains bot
-    var isbot = false;
+    // Check if sender is part of the conversation
+    if (!conversation.members.includes(sender)) {
+      return res
+        .status(403)
+        .json({ error: "User is not part of this conversation" });
+    }
 
-    conversation.members.forEach((member) => {
-      if (member != sender && member.email.includes("bot")) {
-        isbot = true;
-      }
+    // Create and save the new message
+    const newMessage = new Message({
+      conversationId,
+      senderId: sender, // Changed from sender to senderId to match schema
+      text,
+      seenBy: [{ user: sender }], // Add sender as first person who's seen the message
     });
 
-    if (!isbot) {
-      const newMessage = new Message({
-        conversationId,
-        sender,
-        text,
-        imageurl,
-        seenBy: [sender],
-      });
+    const savedMessage = await newMessage.save();
 
-      await newMessage.save();
-      console.log("newMessage saved");
+    // Update conversation's latest message and timestamp
+    conversation.latestmessage = text;
+    conversation.updatedAt = new Date();
+    await conversation.save();
 
-      conversation.updatedAt = new Date();
-      await conversation.save();
-
-      res.json(newMessage);
-    }
+    // Return the saved message
+    res.status(200).json(savedMessage);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    console.error("Detailed error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

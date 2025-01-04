@@ -1,15 +1,26 @@
-// const jwt = require("jsonwebtoken");
-// const { jwtSecret } = require("../config.js");
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
 
-// module.exports = async (req, res, next) => {
-//   const token = req.headers["authorization"]?.split(" ")[1];
-//   if (!token) return res.status(401).json({ error: "No token provided" });
+const auth = async (req, res, next) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
 
-//   try {
-//     const decoded = jwt.verify(token, jwtSecret);
-//     req.user = decoded;
-//     next();
-//   } catch (err) {
-//     res.status(401).json({ error: "Invalid token" });
-//   }
-// };
+    if (!token) {
+      return res.status(401).json({ error: "Please authenticate" });
+    }
+
+    const decoded = jwt.verify(token, "abcdef"); // Use your actual JWT secret
+    const user = await User.findOne({ _id: decoded.userId });
+
+    if (!user) {
+      return res.status(401).json({ error: "Please authenticate" });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: "Please authenticate" });
+  }
+};
+
+module.exports = auth;

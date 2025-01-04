@@ -7,9 +7,9 @@ const {
   getConversationList,
 } = require("../controller/conversationController.js");
 // const fetchuser = require("../middleware/fetchUser.js");
-
-router.post("/", createConversation);
-router.get("/:id", getConversation);
-router.get("/", getConversationList);
+const auth = require("../middleware/authMiddleware.js");
+router.post("/", auth, createConversation);
+router.get("/:id", auth, getConversation);
+router.get("/", auth, getConversationList);
 
 module.exports = router;

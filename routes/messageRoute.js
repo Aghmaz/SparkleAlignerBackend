@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const auth = require("../middleware/authMiddleware");
 
 const {
   sendMessage,
@@ -7,11 +8,10 @@ const {
   deletemesage,
   getPresignedUrl,
 } = require("../controller/messageController.js");
-// const fetchuser = require("../middleware/fetchUser.js");
 
-router.get("/presigned-url", getPresignedUrl);
-router.get("/:id/:userid", allMessage);
-router.post("/send", sendMessage);
-router.post("/delete", deletemesage);
+router.get("/presigned-url", auth, getPresignedUrl);
+router.get("/:id/:userid", auth, allMessage);
+router.post("/send", auth, sendMessage);
+router.post("/delete", auth, deletemesage);
 
 module.exports = router;
