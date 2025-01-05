@@ -39,7 +39,7 @@ mongoose
 
 // Socket.io setup
 initSocket(server); // Initialize socket.io logic
-
+// i will chnage this method
 // Routes
 app.get("/", (req, res) => {
   res.send("Hello World");
