@@ -1,5 +1,6 @@
 const Conversation = require("../models/conversation");
 const User = require("../models/user");
+const notificationService = require("../services/notificationService");
 
 const {
   getAiResponse,
@@ -149,6 +150,17 @@ module.exports = (io, socket) => {
     if (!isReceiverInsideChatRoom) {
       console.log("Emitting new message to: ", receiverId.toString());
       io.to(receiverId.toString()).emit("new-message-notification", message);
+    }
+
+    // Check if receiver is offline
+    const receiverSocket = io.sockets.adapter.rooms.get(receiverId);
+    if (!receiverSocket) {
+      // Send push notification
+      await notificationService.sendChatNotification(
+        receiverId,
+        message.senderName,
+        message.text
+      );
     }
   };
 

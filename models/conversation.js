@@ -3,19 +3,13 @@ const mongoose = require("mongoose");
 const ConversationSchema = new mongoose.Schema(
   {
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    latestmessage: {
+    latestMessage: {
       type: String,
       default: "",
     },
     isGroup: {
       type: Boolean,
       default: false,
-    },
-    name: {
-      type: String,
-      required: function () {
-        return this.isGroup;
-      },
     },
     unreadCounts: [
       {
@@ -35,5 +29,4 @@ const ConversationSchema = new mongoose.Schema(
   }
 );
 
-const Conversation = mongoose.model("Conversation", ConversationSchema);
-module.exports = Conversation;
+module.exports = mongoose.model("Conversation", ConversationSchema);

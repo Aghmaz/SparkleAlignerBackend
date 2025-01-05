@@ -247,3 +247,41 @@ exports.getOnlineStatus = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+const updateOneSignalId = async (req, res) => {
+  try {
+    const { oneSignalId } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { oneSignalId },
+      { new: true }
+    );
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update OneSignal ID" });
+  }
+};
+
+exports.updateFCMToken = async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+    const userId = req.user._id;
+
+    if (!fcmToken) {
+      return res.status(400).json({ error: "FCM token is required" });
+    }
+
+    const user = await User.findById(userId);
+
+    // Add token if it doesn't exist
+    if (!user.fcmTokens.includes(fcmToken)) {
+      user.fcmTokens.push(fcmToken);
+      await user.save();
+    }
+
+    res.status(200).json({ message: "FCM token updated successfully" });
+  } catch (error) {
+    console.error("Error updating FCM token:", error);
+    res.status(500).json({ error: "Failed to update FCM token" });
+  }
+};

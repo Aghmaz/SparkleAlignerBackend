@@ -19,7 +19,7 @@ router.post("/login", userController.login);
 router.post("/admin", userController.adminLogin);
 
 // routes for managing patient media
-router.get("/patient/:id/media", userController.getPatientMedia);  // Fetch media
-router.post("/patient/:id/media", userController.uploadPatientMedia);  // Upload media
+router.get("/patient/:id/media", userController.getPatientMedia); // Fetch media
+router.post("/patient/:id/media", userController.uploadPatientMedia); // Upload media
 
 module.exports = router;

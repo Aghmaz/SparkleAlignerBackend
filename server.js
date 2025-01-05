@@ -19,6 +19,8 @@ const http = require("http");
 const { Server } = require("socket.io");
 const bodyParser = require("body-parser");
 const { initSocket } = require("./socket");
+const { setupReminderJobs } = require("./services/reminderService");
+const setupSocket = require("./socket/socketHandler");
 
 const app = express();
 app.use(express.json());
@@ -28,7 +30,7 @@ const io = new Server(server, { cors: { origin: "*" } });
 app.use(
   cors({
     origin: "http://localhost:3000",
-    methods: "GET,POST,PUT,PATCH,DELETE",
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
@@ -38,8 +40,11 @@ mongoose
   .catch((error) => console.log("couldn't connected to mongodb"));
 
 // Socket.io setup
-initSocket(server); // Initialize socket.io logic
-// i will chnage this method
+// initSocket(server); // Initialize socket.io logic
+
+// Setup socket
+setupSocket(server);
+
 // Routes
 app.get("/", (req, res) => {
   res.send("Hello World");
@@ -57,7 +62,10 @@ app.use("/api/user/treatment-preview-by-agent", treatmentPreviewByAgentRoutes);
 app.use("/api/user/patient-approval", patientApprovalRoutes);
 app.use("/api/user/doctor-approval", doctorApprovalRoutes);
 app.use("/api/final-stage-preview", finalStagePreviewRoutes);
-let PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(process.env.PORT || 5000, () => {
+  console.log(`Server running on port ${process.env.PORT || 5000}`);
+});
+
+setupReminderJobs();
 
 module.exports = app;

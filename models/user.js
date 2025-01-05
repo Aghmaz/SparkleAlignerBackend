@@ -50,6 +50,40 @@ const UserSchema = new mongoose.Schema({
       uploadedAt: { type: Date, default: Date.now },
     },
   ],
+  deviceTokens: [
+    {
+      token: String,
+      platform: {
+        type: String,
+        enum: ["android", "ios", "web"],
+      },
+    },
+  ],
+  oneSignalId: {
+    type: String,
+    default: null,
+  },
+  alignerReminders: {
+    enabled: {
+      type: Boolean,
+      default: false,
+    },
+    times: [
+      {
+        time: String,
+        type: {
+          type: String,
+          enum: ["wear", "remove"],
+        },
+      },
+    ],
+  },
+  fcmTokens: [
+    {
+      type: String,
+      trim: true,
+    },
+  ],
 });
 
 module.exports = mongoose.model("User", UserSchema);

@@ -1,145 +1,85 @@
-const Conversation = require("../models/conversation.js");
-const User = require("../models/user.js");
+const Conversation = require("../models/conversation");
 
 const createConversation = async (req, res) => {
+  console.log("=== Create Conversation ===");
+  console.log("User:", req.user);
+  console.log("Body:", req.body);
+
   try {
-    const { members: memberIds } = req.body;
+    const { members } = req.body;
+    console.log("Creating conversation with members:", members);
 
-    if (!memberIds) {
+    if (!members || !Array.isArray(members) || members.length !== 2) {
+      console.log("Invalid members data:", members);
       return res.status(400).json({
-        error: "Please fill all the fields",
+        message: "Invalid members data",
+        received: members,
       });
     }
 
-    // Get both users
-    const users = await User.find({ _id: { $in: memberIds } });
-    if (users.length !== 2) {
+    // Validate member IDs
+    if (!members.every((id) => id && id.match(/^[0-9a-fA-F]{24}$/))) {
+      console.log("Invalid member ID format");
       return res.status(400).json({
-        error: "Invalid users",
+        message: "Invalid member ID format",
+        received: members,
       });
     }
 
-    // Check chat permissions based on roles
-    const [user1, user2] = users;
-    const isValidChat = checkChatPermissions(user1.role, user2.role);
+    // Check if conversation already exists
+    const existingConversation = await Conversation.findOne({
+      members: { $all: members },
+    });
 
-    if (!isValidChat) {
-      return res.status(403).json({
-        error: "Users with these roles cannot chat with each other",
-      });
+    if (existingConversation) {
+      console.log("Found existing conversation:", existingConversation);
+      return res.status(200).json(existingConversation);
     }
 
-    const conv = await Conversation.findOne({
-      members: { $all: memberIds },
-    }).populate("members", "-password");
-
-    if (conv) {
-      // Filter out the current user from the members array
-      const otherMembers = conv.members.filter(
-        (member) => member._id.toString() !== req.user._id.toString()
-      );
-      conv.members = otherMembers;
-      return res.status(200).json(conv);
-    }
-
-    const newConversation = await Conversation.create({
-      members: memberIds,
-      unreadCounts: memberIds.map((memberId) => ({
-        userId: memberId,
+    // Create new conversation
+    const newConversation = new Conversation({
+      members,
+      latestMessage: "",
+      isGroup: false,
+      unreadCounts: members.map((userId) => ({
+        userId,
         count: 0,
       })),
     });
 
-    await newConversation.populate("members", "-password");
-
-    // Filter out the current user from the members array
-    const otherMembers = newConversation.members.filter(
-      (member) => member._id.toString() !== req.user._id.toString()
-    );
-    newConversation.members = otherMembers;
-
-    return res.status(200).json(newConversation);
+    const savedConversation = await newConversation.save();
+    console.log("Created new conversation:", savedConversation);
+    res.status(201).json(savedConversation);
   } catch (error) {
-    console.log(error);
-    return res.status(500).send("Internal Server Error");
+    console.error("Error in createConversation:", error);
+    res.status(500).json({
+      message: "Error creating conversation",
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }
-};
-
-// Helper function to check chat permissions
-const checkChatPermissions = (role1, role2) => {
-  // SuperAdmin can chat with everyone
-  if (role1 === "SuperAdmin" || role2 === "SuperAdmin") return true;
-
-  // Agent can chat with everyone
-  if (role1 === "Agent" || role2 === "Agent") return true;
-
-  // Manufacturer can only chat with Agent/SuperAdmin
-  if (role1 === "Manufacturer" || role2 === "Manufacturer") {
-    return false; // Already handled by SuperAdmin/Agent checks above
-  }
-
-  // Doctor can only chat with Agent/SuperAdmin
-  if (role1 === "Doctor" || role2 === "Doctor") {
-    return false; // Already handled by SuperAdmin/Agent checks above
-  }
-
-  // Patient can only chat with Agent/SuperAdmin
-  if (role1 === "Patient" || role2 === "Patient") {
-    return false; // Already handled by SuperAdmin/Agent checks above
-  }
-
-  return false;
 };
 
 const getConversation = async (req, res) => {
   try {
-    const conversation = await Conversation.findById(req.params.id).populate(
-      "members",
-      "-password",
-      "-phoneNum"
-    );
-
-    if (!conversation) {
-      return res.status(404).json({
-        error: "No conversation found",
-      });
-    }
-
+    const conversation = await Conversation.findById(req.params.id);
     res.status(200).json(conversation);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    console.error("Error in getConversation:", error);
+    res.status(500).json(error);
   }
 };
 
 const getConversationList = async (req, res) => {
-  const userId = req.user.id;
-
   try {
-    const conversationList = await Conversation.find({
-      members: { $in: userId },
-    }).populate("members", "-password");
-
-    if (!conversationList) {
-      return res.status(404).json({
-        error: "No conversation found",
-      });
-    }
-
-    // remove user from members and also other chatbots
-    for (let i = 0; i < conversationList.length; i++) {
-      conversationList[i].members = conversationList[i].members.filter(
-        (member) => member.id !== userId
-      );
-    }
-
-    conversationList.sort((a, b) => {
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    const userId = req.user.userId; // From auth middleware
+    const conversations = await Conversation.find({
+      members: { $in: [userId] },
     });
-
-    res.status(200).json(conversationList);
+    res.status(200).json(conversations);
   } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
+    console.error("Error in getConversationList:", error);
+    res.status(500).json(error);
   }
 };
 
