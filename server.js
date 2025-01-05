@@ -62,8 +62,8 @@ app.use("/api/user/treatment-preview-by-agent", treatmentPreviewByAgentRoutes);
 app.use("/api/user/patient-approval", patientApprovalRoutes);
 app.use("/api/user/doctor-approval", doctorApprovalRoutes);
 app.use("/api/final-stage-preview", finalStagePreviewRoutes);
-server.listen(process.env.PORT || 5000, () => {
-  console.log(`Server running on port ${process.env.PORT || 5000}`);
+server.listen(process.env.PORT || 8000, () => {
+  console.log(`Server running on port ${process.env.PORT || 8000}`);
 });
 
 setupReminderJobs();

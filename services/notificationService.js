@@ -3,7 +3,7 @@ const User = require("../models/user");
 
 // Initialize Firebase Admin with your service account
 
-var serviceAccount = require("../sparklealigner-firebase-adminsdk-bqavz-474463a343.json");
+var serviceAccount = require("../sparklealigner-firebase-adminsdk-bqavz-859a202dfe.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
