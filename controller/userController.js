@@ -131,6 +131,7 @@ exports.login = errorHandler(async (req, res) => {
         email: user.email,
         userId: user._id,
         password: user.password,
+        role:user.role
       },
       "abcdef"
     );
