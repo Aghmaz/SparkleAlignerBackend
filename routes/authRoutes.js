@@ -18,8 +18,12 @@ router.post("/login", userController.login);
 // admin login route
 router.post("/admin", userController.adminLogin);
 
+// patient wear aligner
+router.post("/patient-wear-aligner/:id", userController.patientWearAligner);
+
 // routes for managing patient media
 router.get("/patient/:id/media", userController.getPatientMedia); // Fetch media
 router.post("/patient/:id/media", userController.uploadPatientMedia); // Upload media
 
 module.exports = router;
+

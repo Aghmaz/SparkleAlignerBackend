@@ -29,13 +29,18 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, {
+    
+    serverSelectionTimeoutMS: 50000, // Increase server selection timeout
+    socketTimeoutMS: 50000, // Increase socket timeout
+    connectTimeoutMS: 30000,
+  })
   .then(() => console.log("connected to mongodb"))
   .catch((error) => console.log("couldn't connected to mongodb"));
 

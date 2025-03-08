@@ -1,5 +1,14 @@
 const mongoose = require("mongoose");
 
+const AlignerReminderSchema = new mongoose.Schema({
+  selectedAligner: { type: Number, required: false, default: 0 },
+  minutesLeft: { type: Number, required: false, default: 0 },
+  outTime: { type: String, required: false }, 
+  notificationTimer: { type: Number, required: false, default: 0 },
+  displayedAligner: { type: String, required: false },
+  isWearing: { type: Boolean, required: false, default: false }
+});
+
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -63,21 +72,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  alignerReminders: {
-    enabled: {
-      type: Boolean,
-      default: false,
-    },
-    times: [
-      {
-        time: String,
-        type: {
-          type: String,
-          enum: ["wear", "remove"],
-        },
-      },
-    ],
-  },
+  alignerReminders: [AlignerReminderSchema], 
   fcmTokens: [
     {
       type: String,

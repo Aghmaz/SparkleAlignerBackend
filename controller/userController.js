@@ -51,6 +51,20 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+// patient wear aligner
+exports.patientWearAligner = async (req, res) => {
+  try {
+    const { selectedAligner, minutesLeft, outTime, notificationTimer, displayedAligner, isWearing } = req.body;
+    const user = await User.findById(req.params.id);
+    user.alignerReminders.push({ selectedAligner, minutesLeft, outTime, notificationTimer, displayedAligner, isWearing });
+    await user.save();
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Delete a user
 exports.deleteUser = async (req, res) => {
   try {
@@ -108,6 +122,7 @@ exports.signup = errorHandler(async (req, res) => {
 // login route (client, doctor, agent)
 exports.login = errorHandler(async (req, res) => {
   try {
+    console.log(req.body, "req.body");
     const { error } = loginSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details });
     // Find the user with the specified email address
@@ -131,7 +146,7 @@ exports.login = errorHandler(async (req, res) => {
         email: user.email,
         userId: user._id,
         password: user.password,
-        role:user.role
+        role: user.role
       },
       "abcdef"
     );
